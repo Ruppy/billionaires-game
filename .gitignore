@@ -1,0 +1,11 @@
+build.app
+Logs
+Temp
+Library
+
+.vs/
+*.cs.meta
+*.csproj
+obj/
+*.sln
+web-build/

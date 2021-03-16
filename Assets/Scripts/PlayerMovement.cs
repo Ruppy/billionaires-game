@@ -4,40 +4,22 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public CharacterController2D controller;
+    public float runSpeed = 40f;
 
-    private Rigidbody2D body = null;
-    public float moveSpeed = 4.5f;
-    public float jumpForce = 6.5f;
+    float horizontalMove = 0;
+    bool jump = false;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        body = GetComponent<Rigidbody2D>();
-    }
+    void Update() {
+        horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
 
-    // Update is called once per frame
-    void Update()
-    {
-        float movex = Input.GetAxisRaw("Horizontal");
-
-        //body.AddForce(new Vector2(movex * moveSpeed, 0));
-        Vector2 velocity = body.velocity;
-        velocity.x = movex * moveSpeed;
-        body.velocity = velocity;
-
-        if (Input.GetKeyDown("space")) {
-            body.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
+        if (Input.GetButtonDown("Jump")) {
+            jump = true;
         }
     }
 
-    void FixedUpdate(){
-        float movex = Input.GetAxisRaw("Horizontal");
-
-        //body.AddForce(new Vector2(movex * moveSpeed, 0));
-        //Vector2 velocity = body.velocity;
-        //velocity.x = movex * moveSpeed;
-        //body.velocity = velocity;
-
-        if (Mathf.Abs(movex) > 0.1) { return; }
+    void FixedUpdate() {
+        controller.Move(horizontalMove * Time.fixedDeltaTime, false, jump);
+        jump = false;
     }
 }

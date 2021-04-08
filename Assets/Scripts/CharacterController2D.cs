@@ -10,6 +10,7 @@ public class CharacterController2D : MonoBehaviour
   [Range(0, .3f)] [SerializeField] private float m_MovementSmoothing = .05f;  // How much to smooth out the movement
   [SerializeField] private bool m_AirControl = false;             // Whether or not a player can steer while jumping;
   [SerializeField] private LayerMask m_WhatIsGround;              // A mask determining what is ground to the character
+  [SerializeField] private LayerMask m_WhatIsWall;              // A mask determining what is ground to the character
   [SerializeField] private Transform m_GroundCheck;             // A position marking where to check if the player is grounded.
   [SerializeField] private Transform m_CeilingCheck;              // A position marking where to check for ceilings
   [SerializeField] private Transform m_WallCheck;             // A position marking where to check if the player is grounded.
@@ -18,6 +19,13 @@ public class CharacterController2D : MonoBehaviour
   [SerializeField] private float m_fallMultiplier = 2.5f;
   [SerializeField] private float m_lowJumpMultiplier = 2f;
   [SerializeField] private float m_WallCheckDistance = 0.4f;
+
+  [SerializeField] private AudioClip walkAudioClip;
+  [SerializeField] private AudioClip jumpAudioClip;
+  [SerializeField] private AudioClip landingAudioClip;
+
+  [SerializeField] private AudioSource playerAudio;
+  [SerializeField] private AudioSource playerFXAudio;
 
   public bool isTouchingWall = false;
   public bool isWallSliding = false;
@@ -63,6 +71,19 @@ public class CharacterController2D : MonoBehaviour
 
     ApplyJumpGravity();
     CheckWall();
+    CheckWalk();
+  }
+
+  private void CheckWalk() {
+    if (m_Grounded && playerAudio.isPlaying == false && horizontalMoveInput != 0) {
+      playerAudio.Play();
+    }
+    else if (m_Grounded == false) {
+      playerAudio.Pause();
+    }
+    else if (horizontalMoveInput == 0) {
+      playerAudio.Pause();
+    }
   }
 
   private void ApplyJumpGravity() {
@@ -79,7 +100,7 @@ public class CharacterController2D : MonoBehaviour
   }
 
   private void CheckWall() {
-    isTouchingWall = Physics2D.Raycast(m_WallCheck.position, transform.right * transform.localScale.x, m_WallCheckDistance, m_WhatIsGround);
+    isTouchingWall = Physics2D.Raycast(m_WallCheck.position, transform.right * transform.localScale.x, m_WallCheckDistance, m_WhatIsWall);
 
     isWallSliding = isTouchingWall &&
                     m_Grounded == false &&
@@ -108,8 +129,10 @@ public class CharacterController2D : MonoBehaviour
       if (colliders[i].gameObject != gameObject)
       {
         m_Grounded = true;
-        if (!wasGrounded)
+        if (!wasGrounded) {
+          playerFXAudio.PlayOneShot(landingAudioClip, 1f);
           OnLandEvent.Invoke();
+        }
       }
     }
   }
@@ -192,10 +215,18 @@ public class CharacterController2D : MonoBehaviour
     {
       // Add a vertical force to the player.
       m_Grounded = false;
+      if (m_RemainingJumps == m_NumberOfJumps) {
+        playerFXAudio.PlayOneShot(jumpAudioClip, 0.3f);
+      }
+      else {
+        playerFXAudio.PlayOneShot(jumpAudioClip, 0.1f);
+      }
 
       //m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
       if (isWallSliding) {
-        m_Rigidbody2D.velocity = new Vector2(-m_Rigidbody2D.velocity.x, m_JumpForce);
+        int wallJumpDirection = m_Rigidbody2D.velocity.x > 0 ? -1 : 1;
+        float wallJumpForce = 2.5f;
+        m_Rigidbody2D.velocity = new Vector2(wallJumpDirection * wallJumpForce, m_JumpForce);
         isWallSliding = false;
         StartCoroutine("StopMove");
       }

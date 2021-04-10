@@ -225,8 +225,8 @@ public class CharacterController2D : MonoBehaviour
       //m_Rigidbody2D.AddForce(new Vector2(0f, m_JumpForce));
       if (isWallSliding) {
         int wallJumpDirection = m_Rigidbody2D.velocity.x > 0 ? -1 : 1;
-        float wallJumpForce = 2.5f;
-        m_Rigidbody2D.velocity = new Vector2(wallJumpDirection * wallJumpForce, m_JumpForce);
+        float wallJumpForceX = 3.5f;
+        m_Rigidbody2D.velocity = new Vector2(wallJumpDirection * wallJumpForceX, m_JumpForce);
         isWallSliding = false;
         StartCoroutine("StopMove");
       }

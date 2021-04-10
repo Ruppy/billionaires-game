@@ -9,3 +9,4 @@ Library
 obj/
 *.sln
 web-build/
+mac-build.app/

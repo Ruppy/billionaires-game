@@ -40,8 +40,8 @@ public class CameraFollow : MonoBehaviour
 
     public void Shake() {
       float currentOrthosize = camera.orthographicSize;
-      DOTween.Sequence()
+      /*DOTween.Sequence()
         .Append(camera.DOOrthoSize(currentOrthosize - 0.05f, 0.05f))
-        .Append(camera.DOOrthoSize(currentOrthosize, 0.1f));
+        .Append(camera.DOOrthoSize(currentOrthosize, 0.1f));*/
     }
 }
